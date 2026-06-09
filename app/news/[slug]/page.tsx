@@ -3,6 +3,30 @@ import { getNewsDetail } from "@/app/_libs/microcms";
 import styles from './page.module.css';
 import ButtonLink from "@/app/_components/ButtonLink/ButtonLink";
 import { notFound } from "next/navigation";
+import type { Metadata } from "next";
+
+// ページごとのメタデータを生成する
+export async function generateMetadata({
+    params,
+    searchParams,
+}: Props): Promise<Metadata> {
+    const { slug } = await params;
+    const { dk } = await searchParams;
+
+    const data = await getNewsDetail(slug, {
+        draftKey: dk,
+    }).catch(notFound);
+
+    return {
+        title: data.title,
+        description: data.description,
+        openGraph: {
+            title: data.title,
+            description: data.description,
+            images: data.thumbnail ? [data.thumbnail.url] : [],
+        },
+    };
+}
 
 type Props = {
     params: Promise<{
